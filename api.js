@@ -96,25 +96,13 @@ async function clearCart() {
 async function createOrder(userInfo) {
   const response = await axios.post(
     `${BASE_URL}/api/livejs/v1/customer/${API_PATH}/orders`,
-    { user: userInfo }
+    {
+      data: {
+        user: userInfo,
+      },
+    },
   );
-  const data = response.data;
-  if (data.status === true) {
-    if (data.id !== undefined) {
-      return { ...data, id: String(data.id) };
-    }
-    const ordersRes = await axios.get(
-      `${BASE_URL}/api/livejs/v1/admin/${API_PATH}/orders`,
-      { headers: { authorization: ADMIN_TOKEN } }
-    );
-    const orders = ordersRes.data.orders || [];
-    if (orders.length > 0) {
-      const sorted = [...orders].sort((a, b) => ((b.createdAt || 0) - (a.createdAt || 0)));
-      return { ...data, id: String(sorted[0].id) };
-    }
-    return { ...data, id: '' };
-  }
-  return data;
+  return response.data;
 }
 // ========== 管理員 API ==========
 
@@ -149,16 +137,19 @@ async function fetchOrders() {
  */
 async function updateOrderStatus(orderId, isPaid) {
   // 請實作此函式
-  const response=await axios.patch(`${BASE_URL}/api/livejs/v1/admin/${API_PATH}/orders`,{
+  const response=await axios.put(`${BASE_URL}/api/livejs/v1/admin/${API_PATH}/orders`,
+    {
     data:{
-      orderId,
-      isPaid
-    }
-  },{
+      id:orderId,
+      paid:isPaid
+    },
+  },
+  {
     headers:{
-      authorization:ADMIN_TOKEN
-    }
-  })
+      authorization:ADMIN_TOKEN,
+    },
+  },
+);
   return response.data;
 }
 

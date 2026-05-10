@@ -11,6 +11,8 @@ const dayjs = require('dayjs');
  */
 function getDiscountRate(product) {
   // 請實作此函式
+ const discountRate=Math.round((product.price/product.origin_price)*10);
+ return`${discountRate}折`; 
 }
 
 /**
@@ -20,6 +22,11 @@ function getDiscountRate(product) {
  */
 function getAllCategories(products) {
   // 請實作此函式
+  const categories=new Set();
+  products.forEach(product=>{
+    categories.add(product.category);
+  })
+  return Array.from(categories);
 }
 
 /**
@@ -30,6 +37,7 @@ function getAllCategories(products) {
 function formatDate(timestamp) {
   // 請實作此函式
   // 提示：dayjs.unix...
+  return dayjs.unix(timestamp).format(`YYYY/MM/DD HH:mm`);
 }
 
 /**
@@ -43,6 +51,11 @@ function getDaysAgo(timestamp) {
   // 1. 用 dayjs() 取得今天
   // 2. 用 dayjs.unix(timestamp) 取得日期
   // 3. 用 .diff() 計算天數差異
+  const today=dayjs();
+  const date=dayjs.unix(timestamp);
+  const daysAgo=today.diff(date,`day`);
+  if(daysAgo===0) return`今天`;
+  return`${daysAgo} 天前`;
 }
 
 /**
@@ -59,6 +72,32 @@ function getDaysAgo(timestamp) {
  */
 function validateOrderUser(data) {
   // 請實作此函式
+  const errors=[];
+  if(!data.name){
+    errors.push(`姓名不可為空`);
+  }
+  if(!data.tel){
+    errors.push(`電話不可為空`);
+  } else if(!/^09\d{8}$/.test(data.tel)){
+    errors.push(`電話格式不正確`);
+  }
+  if(!data.email){
+    errors.push(`電子郵件不可為空`);
+  } else if(!data.email.includes(`@`)){
+    errors.push(`電子郵件格式不正確`);
+  }
+  if(!data.address){
+    errors.push(`地址不可為空`);
+  }
+  if(!data.payment){
+    errors.push(`付款方式不可為空`);
+  } else if(![`ATM`, `Credit Card`, `Apple Pay`].includes(data.payment)){
+    errors.push(`付款方式不正確`);
+  }
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
 }
 
 /**
@@ -73,6 +112,13 @@ function validateOrderUser(data) {
  */
 function validateCartQuantity(quantity) {
   // 請實作此函式
+  if(!Number.isInteger(quantity)){
+    return{ isValid: false, error: `數量必須是整數` };
+  }
+  if(quantity < 1 || quantity > 99){
+    return{ isValid: false, error: `數量必須在 1 到 99 之間` };
+  }
+  return{ isValid: true };
 }
 
 /**
@@ -92,6 +138,7 @@ function validateCartQuantity(quantity) {
  */
 function formatCurrency(amount) {
   // 請實作此函式
+  return `NT$ ${amount.toLocaleString('zh-TW')}`;
 }
 
 module.exports = {
